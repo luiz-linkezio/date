@@ -563,14 +563,22 @@
   ];
 
   function teleport() {
+    const card = document.querySelector("#s1 .card").getBoundingClientRect();
     const vw   = document.documentElement.clientWidth;
     const vh   = document.documentElement.clientHeight;
-    const rect = btnNo.getBoundingClientRect();
-    const w    = Math.max(rect.width,  110);
-    const h    = Math.max(rect.height,  44);
-    const m    = 50;
-    btnNo.style.left = (m + Math.random() * Math.max(0, vw - w - m * 2)) + "px";
-    btnNo.style.top  = (m + Math.random() * Math.max(0, vh - h - m * 2)) + "px";
+    const bw   = Math.max(btnNo.getBoundingClientRect().width,  110);
+    const bh   = Math.max(btnNo.getBoundingClientRect().height,  44);
+
+    // Keep within ~180px of the card, clamped inside viewport with 16px margin
+    const pad  = 180;
+    const edge = 16;
+    const minX = Math.max(edge,          card.left   - pad);
+    const maxX = Math.min(vw - bw - edge, card.right  + pad - bw);
+    const minY = Math.max(edge,          card.top    - pad);
+    const maxY = Math.min(vh - bh - edge, card.bottom + pad - bh);
+
+    btnNo.style.left = (minX + Math.random() * Math.max(0, maxX - minX)) + "px";
+    btnNo.style.top  = (minY + Math.random() * Math.max(0, maxY - minY)) + "px";
   }
 
   function runAway(e) {
