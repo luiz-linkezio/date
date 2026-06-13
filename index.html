@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Uma Pergunta Especial 💕</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #ff6b9d 0%, #ff9a9e 30%, #fecfef 60%, #c879d4 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 10s ease infinite;
+      overflow-x: hidden;
+    }
+
+    @keyframes gradientShift {
+      0%   { background-position: 0%   50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0%   50%; }
+    }
+
+    /* ── Floating hearts ── */
+    #heart-canvas {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .floaty {
+      position: absolute;
+      bottom: -80px;
+      animation: floatUp linear forwards;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(0)      rotate(0deg)   scale(1);   opacity: 0; }
+      10%  { opacity: 1; }
+      50%  { transform: translateY(-45vh)  rotate(180deg) scale(1.1); opacity: 1; }
+      90%  { opacity: 0.6; }
+      100% { transform: translateY(-110vh) rotate(360deg) scale(0.8); opacity: 0; }
+    }
+
+    /* ── Screens ── */
+    .screen {
+      display: none;
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .screen.active { display: flex; }
+
+    .card {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1.5px solid rgba(255, 180, 210, 0.5);
+      border-radius: 32px;
+      padding: 52px 44px;
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+      box-shadow:
+        0 25px 65px rgba(220, 80, 130, 0.25),
+        0 8px 24px rgba(0,0,0,0.08);
+      animation: cardIn 0.5s cubic-bezier(.34,1.56,.64,1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0)    scale(1); }
+    }
+
+    /* ── Typography ── */
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      color: #b5294e;
+      line-height: 1.35;
+      margin-bottom: 14px;
+    }
+
+    .subtitle {
+      color: #9a4f6b;
+      font-size: 1rem;
+      margin-bottom: 32px;
+      font-weight: 300;
+    }
+
+    /* ── Big emoji ── */
+    .big-emoji {
+      font-size: 4.5rem;
+      display: block;
+      margin-bottom: 18px;
+      animation: pulse 2s ease-in-out infinite alternate;
+      line-height: 1;
+    }
+    @keyframes pulse {
+      from { transform: scale(1)    rotate(-3deg); }
+      to   { transform: scale(1.12) rotate(3deg);  }
+    }
+
+    /* ── Step dots ── */
+    .steps {
+      display: flex; gap: 8px; justify-content: center;
+      margin-bottom: 24px;
+    }
+    .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: rgba(220, 80, 130, 0.2);
+      transition: background .3s;
+    }
+    .dot.active { background: #ff6b9d; transform: scale(1.3); }
+    .dot.done   { background: #b5294e; }
+
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      background: linear-gradient(135deg, #ff6b9d, #b5294e);
+      color: #fff;
+      border: none;
+      padding: 15px 44px;
+      border-radius: 50px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      box-shadow: 0 8px 24px rgba(200, 60, 100, 0.35);
+      transition: transform .2s, box-shadow .2s;
+      text-decoration: none;
+      margin-top: 8px;
+    }
+    .btn:hover  { transform: scale(1.06); box-shadow: 0 12px 32px rgba(200,60,100,.45); }
+    .btn:active { transform: scale(0.98); }
+
+    .btn-wa {
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      box-shadow: 0 8px 24px rgba(18, 140, 126, 0.35);
+    }
+    .btn-wa:hover { box-shadow: 0 12px 32px rgba(18,140,126,.45); }
+
+    .btn-copy {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      box-shadow: 0 8px 24px rgba(100,80,180,.35);
+    }
+
+    /* ── Yes / No (Screen 1) ── */
+    #s1-buttons {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    #btn-yes {
+      font-size: 1.3rem;
+      padding: 16px 52px;
+      transition: font-size .4s, padding .4s, transform .2s, box-shadow .2s;
+      margin-top: 0;
+    }
+
+    #btn-no {
+      /* starts inline — JS switches to fixed on first escape */
+      position: relative;
+      background: rgba(180,180,180,0.85);
+      color: #555;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 50px;
+      font-size: .95rem;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      box-shadow: 0 4px 14px rgba(0,0,0,.12);
+      z-index: 100;
+      white-space: nowrap;
+    }
+    #btn-no.escaped {
+      position: fixed;
+    }
+
+    /* ── Option grid ── */
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+      text-align: left;
+    }
+
+    .opt {
+      background: rgba(255, 200, 220, 0.25);
+      border: 2px solid rgba(255, 150, 180, 0.3);
+      border-radius: 18px;
+      padding: 18px 12px;
+      cursor: pointer;
+      transition: all .25s;
+      text-align: center;
+      font-size: .88rem;
+      color: #7a3a52;
+      font-family: 'Poppins', sans-serif;
+    }
+    .opt .icon { font-size: 2rem; display: block; margin-bottom: 6px; }
+    .opt:hover  { background: rgba(255,107,157,0.18); border-color: #ff6b9d; }
+    .opt.picked {
+      background: linear-gradient(135deg, rgba(255,107,157,.25), rgba(181,41,78,.2));
+      border-color: #b5294e;
+      color: #b5294e;
+      font-weight: 600;
+      transform: scale(1.04);
+    }
+
+    /* ── Inputs ── */
+    .field { text-align: left; margin-bottom: 16px; }
+    .field label {
+      display: block;
+      font-size: .8rem;
+      color: #b5294e;
+      font-weight: 600;
+      margin-bottom: 6px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .field input {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid rgba(255, 107, 157, 0.35);
+      border-radius: 14px;
+      font-size: 1rem;
+      font-family: 'Poppins', sans-serif;
+      color: #5a2035;
+      background: rgba(255,255,255,.8);
+      outline: none;
+      transition: border-color .25s;
+    }
+    .field input:focus { border-color: #ff6b9d; }
+
+    /* ── Summary ── */
+    .sum-item {
+      display: flex; align-items: center; gap: 14px;
+      background: rgba(255,200,220,.25);
+      border-radius: 16px;
+      padding: 14px 18px;
+      margin-bottom: 10px;
+      text-align: left;
+    }
+    .sum-item .ico { font-size: 1.6rem; flex-shrink: 0; }
+    .sum-item .lbl { font-size: .75rem; color: #b5294e; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+    .sum-item .val { font-size: .98rem; color: #5a2035; font-weight: 600; }
+
+    .btn-row { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+
+    @media (max-width: 480px) {
+      .card { padding: 36px 22px; }
+      .option-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<div id="heart-canvas"></div>
+
+<!-- ══════════════ SCREEN 1 — The Big Question ══════════════ -->
+<div class="screen active" id="s1">
+  <div class="card">
+    <span class="big-emoji">💌</span>
+    <h1 id="question"></h1>
+    <p class="subtitle">Pode confiar… vai ser inesquecível 🥰</p>
+
+    <div id="s1-buttons">
+      <button class="btn" id="btn-yes" onclick="goScreen(2)">Sim, claro! 💕</button>
+      <button id="btn-no" onmouseover="runAway()" ontouchstart="runAway(event)" onclick="runAway()">Não</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SCREEN 2 — Knew it ══════════════ -->
+<div class="screen" id="s2">
+  <div class="card">
+    <span class="big-emoji">🎉</span>
+    <h1>Sabia que você iria querer!</h1>
+    <p class="subtitle">Nossa química é inevitável… agora é só planejar! ✨</p>
+    <button class="btn" onclick="goScreen(3)">Vamos planejar →</button>
+  </div>
+</div>
+
+<!-- ══════════════ SCREEN 3 — Data e Hora ══════════════ -->
+<div class="screen" id="s3">
+  <div class="card">
+    <div class="steps">
+      <div class="dot done"></div><div class="dot active"></div>
+      <div class="dot"></div><div class="dot"></div>
+    </div>
+    <span class="big-emoji">📅</span>
+    <h1>Quando você está disponível?</h1>
+    <p class="subtitle">Escolha o melhor dia e horário pra você</p>
+
+    <div class="field">
+      <label>Data</label>
+      <input type="date" id="inp-date" />
+    </div>
+    <div class="field">
+      <label>Horário</label>
+      <input type="time" id="inp-time" value="19:00" />
+    </div>
+
+    <button class="btn" onclick="fromDate()">Próximo →</button>
+  </div>
+</div>
+
+<!-- ══════════════ SCREEN 4 — Local ══════════════ -->
+<div class="screen" id="s4">
+  <div class="card">
+    <div class="steps">
+      <div class="dot done"></div><div class="dot done"></div>
+      <div class="dot active"></div><div class="dot"></div>
+    </div>
+    <span class="big-emoji">📍</span>
+    <h1>Onde prefere ir?</h1>
+    <p class="subtitle">Escolha o rolê</p>
+
+    <div class="option-grid" id="loc-grid">
+      <div class="opt" data-v="Shopping"           onclick="pick(this,'loc')"><span class="icon">🛍️</span>Shopping</div>
+      <div class="opt" data-v="Parque"             onclick="pick(this,'loc')"><span class="icon">🌳</span>Parque</div>
+      <div class="opt" data-v="Cinema"             onclick="pick(this,'loc')"><span class="icon">🎬</span>Cinema</div>
+      <div class="opt" data-v="Academia"           onclick="pick(this,'loc')"><span class="icon">🏋️</span>Academia</div>
+      <div class="opt" data-v="Praia"              onclick="pick(this,'loc')"><span class="icon">🏖️</span>Praia</div>
+      <div class="opt" data-v="Andar pela cidade"  onclick="pick(this,'loc')"><span class="icon">🚶</span>Andar</div>
+    </div>
+
+    <button class="btn" onclick="fromLoc()">Próximo →</button>
+  </div>
+</div>
+
+<!-- ══════════════ SCREEN 5 — Comida ══════════════ -->
+<div class="screen" id="s5">
+  <div class="card">
+    <div class="steps">
+      <div class="dot done"></div><div class="dot done"></div>
+      <div class="dot done"></div><div class="dot active"></div>
+    </div>
+    <span class="big-emoji">🍽️</span>
+    <h1>Qual comida você prefere?</h1>
+    <p class="subtitle">Escolha o estilo gastronômico</p>
+
+    <div class="option-grid" id="food-grid">
+      <div class="opt" data-v="Japonesa"      onclick="pick(this,'food')"><span class="icon">🍣</span>Japonesa</div>
+      <div class="opt" data-v="Pizza"         onclick="pick(this,'food')"><span class="icon">🍕</span>Pizza</div>
+      <div class="opt" data-v="Frutos do mar" onclick="pick(this,'food')"><span class="icon">🦞</span>Mar</div>
+      <div class="opt" data-v="Doces"         onclick="pick(this,'food')"><span class="icon">🍰</span>Doces</div>
+      <div class="opt" data-v="Lanche"        onclick="pick(this,'food')"><span class="icon">🍔</span>Lanche</div>
+    </div>
+
+    <button class="btn" onclick="fromFood()">Confirmar 💕</button>
+  </div>
+</div>
+
+<!-- ══════════════ SCREEN 6 — Resumo ══════════════ -->
+<div class="screen" id="s6">
+  <div class="card">
+    <span class="big-emoji">🥳</span>
+    <h1>Tá marcado!</h1>
+    <p class="subtitle">Aqui está tudo certinho:</p>
+
+    <div id="summary"></div>
+
+    <div class="btn-row">
+      <button class="btn btn-wa"   onclick="sendWA()">📲 Enviar pelo WhatsApp</button>
+      <button class="btn btn-copy" onclick="copyIt()">📋 Copiar resumo</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ══════════════════════════════════════════
+     ★  CONFIGURE AQUI  ★
+     Coloque seu número do WhatsApp (com DDI + DDD, sem + ou espaços)
+     Exemplo Brasil: 5511999999999
+  ══════════════════════════════════════════ */
+  const MY_WA_NUMBER = "5511999999999";
+
+  /* ─────────────────────────────────────── */
+
+  const params  = new URLSearchParams(location.search);
+  const rawName = params.get("name") || "linda";
+  const name    = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+
+  document.getElementById("question").textContent =
+    `${name}, você quer ir num date comigo? 💕`;
+
+  const btnNo  = document.getElementById("btn-no");
+  const btnYes = document.getElementById("btn-yes");
+
+  // ── No button escape logic ──
+  let noCount = 0;
+  let yesPad  = 16;
+  let yesFont = 1.3;
+
+  function runAway(e) {
+    if (e) e.preventDefault();
+
+    // First escape: switch from inline to fixed before calculating size
+    if (!btnNo.classList.contains("escaped")) {
+      btnNo.classList.add("escaped");
+    }
+
+    noCount++;
+
+    const w      = btnNo.offsetWidth  || 100;
+    const h      = btnNo.offsetHeight || 44;
+    const margin = 20;
+    const maxX   = window.innerWidth  - w - margin;
+    const maxY   = window.innerHeight - h - margin;
+
+    btnNo.style.left = (margin + Math.random() * Math.max(0, maxX)) + "px";
+    btnNo.style.top  = (margin + Math.random() * Math.max(0, maxY)) + "px";
+
+    // Grow the Yes button a little each time
+    yesFont = Math.min(yesFont + 0.18, 3.0);
+    yesPad  = Math.min(yesPad  + 4,    52);
+    btnYes.style.fontSize = yesFont + "rem";
+    btnYes.style.padding  = `${yesPad}px ${Math.round(yesPad * 2.6)}px`;
+  }
+
+  // ── Screen navigation ──
+  function goScreen(n) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById("s" + n).classList.add("active");
+    window.scrollTo(0, 0);
+  }
+
+  // ── State ──
+  const ans = { date: "", time: "", loc: "", food: "" };
+
+  function fromDate() {
+    const d = document.getElementById("inp-date").value;
+    const t = document.getElementById("inp-time").value;
+    if (!d) { shake("inp-date"); alert("Escolha uma data, por favor! 📅"); return; }
+    ans.date = d;
+    ans.time = t || "19:00";
+    goScreen(4);
+  }
+
+  let locPicked = "", foodPicked = "";
+
+  function pick(el, type) {
+    el.closest(".option-grid")
+      .querySelectorAll(".opt")
+      .forEach(o => o.classList.remove("picked"));
+    el.classList.add("picked");
+    if (type === "loc")  { locPicked  = el.dataset.v; }
+    if (type === "food") { foodPicked = el.dataset.v; }
+  }
+
+  function fromLoc() {
+    if (!locPicked) { alert("Escolha um local! 📍"); return; }
+    ans.loc = locPicked;
+    goScreen(5);
+  }
+
+  function fromFood() {
+    if (!foodPicked) { alert("Escolha um tipo de comida! 🍽️"); return; }
+    ans.food = foodPicked;
+    buildSummary();
+    goScreen(6);
+  }
+
+  // ── Summary ──
+  function fmtDate(d) {
+    return new Date(d + "T12:00:00").toLocaleDateString("pt-BR", {
+      weekday: "long", day: "numeric", month: "long"
+    });
+  }
+
+  function buildSummary() {
+    document.getElementById("summary").innerHTML = `
+      <div class="sum-item"><span class="ico">👫</span><div><div class="lbl">Com quem</div><div class="val">${name} &amp; você 💕</div></div></div>
+      <div class="sum-item"><span class="ico">📅</span><div><div class="lbl">Data</div><div class="val">${fmtDate(ans.date)}</div></div></div>
+      <div class="sum-item"><span class="ico">🕐</span><div><div class="lbl">Horário</div><div class="val">${ans.time}h</div></div></div>
+      <div class="sum-item"><span class="ico">📍</span><div><div class="lbl">Local</div><div class="val">${ans.loc}</div></div></div>
+      <div class="sum-item"><span class="ico">🍽️</span><div><div class="lbl">Comida</div><div class="val">${ans.food}</div></div></div>
+    `;
+  }
+
+  function buildMessage() {
+    return `💕 *Date confirmado!*\n\n` +
+      `👫 *Com quem:* ${name}\n` +
+      `📅 *Data:* ${fmtDate(ans.date)}\n` +
+      `🕐 *Horário:* ${ans.time}h\n` +
+      `📍 *Local:* ${ans.loc}\n` +
+      `🍽️ *Comida:* ${ans.food}\n\n` +
+      `Mal posso esperar! 🥰`;
+  }
+
+  function sendWA() {
+    const text = encodeURIComponent(buildMessage());
+    window.open(`https://wa.me/${MY_WA_NUMBER}?text=${text}`, "_blank");
+  }
+
+  async function copyIt() {
+    try {
+      await navigator.clipboard.writeText(buildMessage());
+      alert("Copiado! ✅ Cola no WhatsApp e manda pra mim 💕");
+    } catch {
+      prompt("Copie o texto abaixo:", buildMessage());
+    }
+  }
+
+  function shake(id) {
+    const el = document.getElementById(id);
+    el.style.animation = "none";
+    el.offsetHeight;
+    el.style.animation = "shake .4s ease";
+  }
+
+  // ── Floating hearts ──
+  const FLOATIES = ["❤️","💕","💖","💗","💓","💝","💘","🌹","✨","🥰","🫶"];
+  const canvas   = document.getElementById("heart-canvas");
+
+  function spawnHeart() {
+    const el = document.createElement("span");
+    el.className   = "floaty";
+    el.textContent = FLOATIES[Math.floor(Math.random() * FLOATIES.length)];
+    const size = 14 + Math.random() * 22;
+    el.style.fontSize = size + "px";
+    el.style.left     = Math.random() * 98 + "vw";
+    const dur = 7 + Math.random() * 8;
+    el.style.animationDuration = dur + "s";
+    canvas.appendChild(el);
+    setTimeout(() => el.remove(), dur * 1000);
+  }
+
+  spawnHeart();
+  setInterval(spawnHeart, 500);
+</script>
+</body>
+</html>
