@@ -505,11 +505,10 @@
   function typeWriter(text, i = 0) {
     if (i === 0) qEl.innerHTML = '<span class="cursor"></span>';
     if (i < text.length) {
-      // Insert char before the cursor span
-      qEl.firstChild.before(document.createTextNode(text[i]));
+      // Always insert before the cursor so characters appear left-to-right
+      qEl.querySelector(".cursor").before(document.createTextNode(text[i]));
       setTimeout(() => typeWriter(text, i + 1), 45);
     } else {
-      // Remove cursor after typing finishes
       setTimeout(() => {
         const cur = qEl.querySelector(".cursor");
         if (cur) cur.remove();
@@ -769,7 +768,7 @@
     const el = document.createElement("span");
     el.className   = "floaty";
     el.textContent = FLOATIES[Math.floor(Math.random() * FLOATIES.length)];
-    const size = 14 + Math.random() * 22;
+    const size = 28 + Math.random() * 36;
     el.style.fontSize = size + "px";
     el.style.left     = Math.random() * 98 + "vw";
     const dur = 7 + Math.random() * 8;
