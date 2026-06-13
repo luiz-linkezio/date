@@ -761,8 +761,11 @@
     }
   }
 
-  // ── Floating hearts ──
-  const FLOATIES = ["❤️","💕","💖","💗","💓","💝","💘","🌹","✨","🥰","🫶"];
+  // ── Floating hearts (or animals for Gabi 🐱🐮) ──
+  const isGabi   = rawName.toLowerCase().includes("gabi");
+  const FLOATIES = isGabi
+    ? ["🐱","🐮","🐾","🐈","🐄","😺","🐈‍⬛","😸","🐮","🐱","🌿","🩺","🐾","🐱","🐮"]
+    : ["❤️","💕","💖","💗","💓","💝","💘","🌹","✨","🥰","🫶"];
   const canvas   = document.getElementById("heart-canvas");
 
   function spawnHeart() {
