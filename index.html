@@ -450,7 +450,7 @@
     <div class="option-grid" id="food-grid">
       <div class="opt" data-v="Japonesa"      onclick="pick(this,'food')"><span class="icon">🍣</span>Japonesa</div>
       <div class="opt" data-v="Pizza"         onclick="pick(this,'food')"><span class="icon">🍕</span>Pizza</div>
-      <div class="opt" data-v="Frutos do mar" onclick="pick(this,'food')"><span class="icon">🦞</span>Mar</div>
+      <div class="opt" id="opt-seafood" data-v="Frutos do mar" onclick="pick(this,'food')"><span class="icon">🦞</span>Mar</div>
       <div class="opt" data-v="Doces"         onclick="pick(this,'food')"><span class="icon">🍰</span>Doces</div>
       <div class="opt" data-v="Lanche"        onclick="pick(this,'food')"><span class="icon">🍔</span>Lanche</div>
       <div class="opt" data-v="__outro__"     onclick="pick(this,'food')"><span class="icon">✏️</span>Outro</div>
@@ -766,6 +766,13 @@
     } catch {
       prompt("Copie o texto abaixo:", buildMessage());
     }
+  }
+
+
+    const seafood = document.getElementById("opt-seafood");
+    seafood.dataset.v      = "Italiana";
+    seafood.innerHTML      = '<span class="icon">🍝</span>Italiana';
+    seafood.setAttribute("onclick", "pick(this,'food')");
   }
 
     ? ["🐱","🐮","🐾","🐈","🐄","😺","🐈‍⬛","😸","🐮","🐱","🌿","🩺","🐾","🐱","🐮"]
